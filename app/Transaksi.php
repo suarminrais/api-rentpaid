@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Transaksi extends Model
 {
     protected $fillable = [
-        'penyewa_id', 'tenant_id', 'status', 'dibayar', 'sisa', 'tanggal'
+        'penyewa_id', 'tenant_id', 'status', 'dibayar', 'sisa', 'tanggal', 'user_id'
     ];
 
     public function penyewa(){
