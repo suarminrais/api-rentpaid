@@ -16,7 +16,11 @@ $router->get('/', function () use ($router) {
 });
 
 $router->group(['prefix' => 'api'], function () use ($router) {
-   // Matches "/api/register
+    // Matches "/api/register
     $router->post('register', 'AuthController@register');
     $router->post('login', 'AuthController@login');
+    
+    //tenant routes
+    $router->get('tenant', 'TenantController@index');
+    $router->get('tenant/{id}', 'TenantController@show');
 });

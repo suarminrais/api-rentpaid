@@ -50,4 +50,16 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     {
         return [];
     }
+
+    public function location() {
+        return $this->hasMany('App\Lokasi');
+    }
+
+    public function lokasi() {
+        return $this->belongsTo('App\Lokasi');
+    }
+
+    public function transaksi() {
+        return $this->hasMany('App\Transaksi');
+    }
 }
