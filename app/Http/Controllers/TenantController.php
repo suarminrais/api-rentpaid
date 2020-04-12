@@ -13,6 +13,19 @@ class TenantController extends Controller
         $this->middleware('auth');
     }
 
+    public function user()
+    {
+        $user = \Auth::user();
+
+        return response()->json([
+            "diagnostic" => [
+                "code" => 200,
+                "message" => "success"
+            ],
+            "data" => $user
+        ]);
+    }
+
     public function index(){
         $tenant = TenantCollection::collection(Tenant::orderBy('updated_at', 'desc')->paginate(20));
         
