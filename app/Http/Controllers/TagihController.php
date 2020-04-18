@@ -15,12 +15,6 @@ class TagihController extends Controller
 
     public function index(){
         $user = \Auth::user();
-        return response()->json([
-            "diagnostic" => [
-                "code" => 200,
-                "message" => "success"
-            ],
-            "data" => TenantCollection::collection($user->lokasi->tenant()->paginate(20))
-        ]);
+        return TenantCollection::collection($user->lokasi->tenant()->paginate(20));
     }
 }

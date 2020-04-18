@@ -30,13 +30,7 @@ class TenantController extends Controller
     public function index(){
         $tenant = TenantCollection::collection(Tenant::orderBy('updated_at', 'desc')->paginate(20));
         
-        return response()->json([
-            'diagnostic' => [
-                'code' => 200,
-                'message' => 'success'
-            ],
-            'data' => $tenant
-        ]);
+        return $tenant;
     }
 
     public function show($id){
@@ -54,7 +48,7 @@ class TenantController extends Controller
             return response()->json([
                 'diagnostic' => [
                     'code' => 404,
-                    'message' => 'Data tenant not'
+                    'message' => 'Data tenant not found'
                 ],
             ]);
         }
