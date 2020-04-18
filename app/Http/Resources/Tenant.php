@@ -18,7 +18,7 @@ class Tenant extends JsonResource
                             + $this->kategori->tarif->listrik 
                             + $this->kategori->tarif->sampah 
                             + $this->kategori->tarif->air),
-            "penyewa" => ($this->penyewa) ? $this->penyewa : 'kosong',
+            "penyewa" => ($this->penyewa) ? $this->penyewa : '',
             "lokasi" => $this->lokasi,
             "created_at" => (string) $this->created_at,
             "updated_at" => (string) $this->updated_at

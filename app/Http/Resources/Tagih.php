@@ -21,8 +21,8 @@ class Tagih extends JsonResource
             "penyewa" => ($this->penyewa) ? [
                 "id" => $this->penyewa->id,
                 "nama" => $this->penyewa->nama, 
-            ]: 'kosong',
-            "transaksi" => $this->transaksi()->latest()->first() ? $this->transaksi()->latest()->first()->status : null,
+            ]: '',
+            "transaksi" => $this->transaksi()->latest()->first() ? $this->transaksi()->latest()->first()->status : '',
         ];
     }
 }

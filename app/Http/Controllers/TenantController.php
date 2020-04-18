@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Resources\Tenant as TenantCollection;
+use App\Http\Resources\User;
 use App\Tenant;
 
 class TenantController extends Controller
@@ -22,7 +23,7 @@ class TenantController extends Controller
                 "code" => 200,
                 "message" => "success"
             ],
-            "data" => $user
+            "data" => new User($user)
         ]);
     }
 
