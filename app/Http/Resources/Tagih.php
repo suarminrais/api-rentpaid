@@ -19,9 +19,9 @@ class Tagih extends JsonResource
                             + $this->kategori->tarif->sampah 
                             + $this->kategori->tarif->air),
             "penyewa" => ($this->penyewa) ? [
-                "id" => $this->penyewa->id,
-                "nama" => $this->penyewa->nama, 
-            ]: '',
+                $this->penyewa->id,
+                $this->penyewa->nama, 
+            ]: null,
             "transaksi" => $this->transaksi()->latest()->first() ? $this->transaksi()->latest()->first()->status : '',
         ];
     }
