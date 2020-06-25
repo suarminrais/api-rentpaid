@@ -54,7 +54,8 @@ class Handler extends ExceptionHandler
                 "diagnostic" => [
                     'code' => 422,
                     "message" => "The given data was invalid"
-                ]
+                ],
+                'data' => $exception->response->original
             ],200);
         }
 
