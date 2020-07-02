@@ -10,7 +10,7 @@ class Tagih extends JsonResource
     {
         return [
             "id" => $this->id,
-            "kode" => $this->kode,
+            "kode_tenant" => $this->kode,
             "harga" => ($this->kategori->tarif->bop 
                             + ($this->kategori->tarif->bop * 0.1)
                             + $this->kategori->tarif->permeter
@@ -18,11 +18,11 @@ class Tagih extends JsonResource
                             + $this->kategori->tarif->listrik 
                             + $this->kategori->tarif->sampah 
                             + $this->kategori->tarif->air),
-            "penyewa" => ($this->penyewa) ? [
-                $this->penyewa->id,
-                $this->penyewa->nama, 
-            ]: null,
-            "transaksi" => $this->transaksi()->latest()->first() ? $this->transaksi()->latest()->first()->status : '',
+            "penyewa" => [
+                "id" =>$this->penyewa->id,
+                "nama" =>$this->penyewa->nama,
+            ],
+            "status" => $this->status_tagih,
         ];
     }
 }

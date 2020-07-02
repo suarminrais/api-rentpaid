@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Tenant;
 use App\Transaksi;
+use App\Lokasi;
+use App\Http\Resources\Tunggakan;
 
 class TransaksiController extends Controller
 {
@@ -39,7 +41,28 @@ class TransaksiController extends Controller
                 'code' => 201,
                 "message" => "created transaksi"
             ],
-            "data" => Transaksi::create($req->all())
+            "response" => [
+                "data" => Transaksi::create($req->all())
+            ]
+        ]);
+    }
+
+    public function tunggakan()
+    {
+        return Tunggakan::collection(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->where('penyewa_id', "<>", null)->paginate(20));
+    }
+
+    public function tunggakanSingle($id)
+    {
+        $data = new Tunggakan(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->findOrFail($id));
+        return response()->json([
+            "diagnostic" => [
+                'code' => 200,
+                "message" => "tunggakan data"
+            ],
+            "response" => [
+                "data" => $data
+            ]
         ]);
     }
 }

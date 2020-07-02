@@ -10,10 +10,12 @@ class Controller extends BaseController
     protected function respondWithToken($token)
     {
         return response()->json([
-            "data" => [
-                'token' => $token,
-                'token_type' => 'bearer',
-                'expires_in' => Auth::factory()->getTTL() * 60,
+            "response" => [
+                "data" => [
+                    'token' => $token,
+                    'token_type' => 'bearer',
+                    'expires_in' => Auth::factory()->getTTL() * 60,
+                ],
             ],
             "diagnostic" => [
                 'code' => 200,

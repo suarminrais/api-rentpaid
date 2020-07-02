@@ -23,7 +23,9 @@ class TenantController extends Controller
                 "code" => 200,
                 "message" => "success"
             ],
-            "data" => new User($user)
+            "response" => [
+                "data" => new User($user)
+            ]
         ]);
     }
 
@@ -42,7 +44,9 @@ class TenantController extends Controller
                     'code' => 200,
                     'message' => 'success'
                 ],
-                'data' => $tenant
+                "response" => [
+                    'data' => $tenant
+                ]
             ]);
         } catch (\Exception $e){
             return response()->json([
