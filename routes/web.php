@@ -19,7 +19,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     // Matches "/api/register
     // $router->post('register', 'AuthController@register');
     $router->post('login', 'AuthController@login');
-    $router->get('user', 'TenantController@user');
+    // $router->get('user', 'TenantController@user');
     
     //tenant routes
     // $router->get('tenant', 'TenantController@index');
@@ -27,6 +27,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
 
     //tunggakan routes
     $router->get('tunggakan', 'TransaksiController@tunggakan');
+    $router->post('tunggakan', 'TransaksiController@bayar');
     $router->get('tunggakan/{id}', 'TransaksiController@tunggakanSingle');
 
     //transaksi route

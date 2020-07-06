@@ -17,7 +17,6 @@ class TransaksiController extends Controller
 
     public function store(Request $req) {
         $this->validate($req, [
-            'penyewa_id' => 'required', 
             'tenant_id' => 'required', 
             'status' => 'required', 
             'dibayar' => 'required', 
@@ -62,6 +61,48 @@ class TransaksiController extends Controller
             ],
             "response" => [
                 "data" => $data
+            ]
+        ]);
+    }
+
+    public function bayar(Request $req)
+    {
+        $this->validate($req, [
+            'tenant_id' => 'required', 
+            'dibayar' => 'required', 
+        ]);
+
+        $data = Transaksi::where(['tenant_id' => $req->tenant_id, 'status' => 'menunggak'])->get();
+        $sim = $req->dibayar;
+        
+        foreach ($data as $file) {
+            if($sim >= 0){
+                if($sim - $file->sisa >= 0){
+                        $file->dibayar = $file->sisa;
+                        $sisa = $sim - $file->sisa;
+                        $file->status = "lunas";
+                        $file->sisa= 0;
+                        $file->save();
+                        $sim = $sisa;
+                    } else{
+                        $file->dibayar = $sim;
+                        $sisa = $sim - $file->sisa;
+                        $file->sisa= $file->sisa - $sim;
+                        $file->save();
+                        $sim = $sisa;
+                    }
+                }
+        }
+
+        return response()->json([
+            "diagnostic" => [
+                'code' => 200,
+                "message" => "bayar tunggakan"
+            ],
+            "response" => [
+                "data" => [
+                    "dibayar" => "oke"
+                ]
             ]
         ]);
     }
