@@ -18,10 +18,7 @@ class Tagih extends JsonResource
                             + $this->kategori->tarif->listrik 
                             + $this->kategori->tarif->sampah 
                             + $this->kategori->tarif->air),
-            "penyewa" => [
-                "id" =>$this->penyewa->id,
-                "nama" =>$this->penyewa->nama,
-            ],
+            "penyewa" => $this->penyewa->nama,
             "status" => $this->status_tagih,
         ];
     }

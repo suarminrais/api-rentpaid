@@ -16,7 +16,6 @@ class User extends JsonResource
             "ktp" => $this->ktp ? $this->ktp : '',
             "photo" => $this->photo ? $this->photo : '',
             "lokasi" => [
-                "id" => $this->lokasi->id,
                 "lokasi" => $this->lokasi->lokasi,
                 "alamat" => $this->lokasi->alamat,
             ]
