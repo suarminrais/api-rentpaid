@@ -64,7 +64,7 @@ class TenantController extends Controller
             'search' => 'required|string',
         ]);
 
-        $penyewa = Penyewa::where('nama', $req->search)->first();
+        $penyewa = Penyewa::where('nama','like', $req->search)->first();
 
         $tenant = TenantCollection::collection( $penyewa ? $penyewa->tenant()->get() : Tenant::where('kode', $req->search)->latest()->get());
         
