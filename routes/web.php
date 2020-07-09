@@ -24,6 +24,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     //tenant routes
     // $router->get('tenant', 'TenantController@index');
     $router->get('tenant/{id}', 'TenantController@show');
+    $router->post('tenant', 'TenantController@search');
 
     //tunggakan routes
     $router->get('tunggakan', 'TransaksiController@tunggakan');

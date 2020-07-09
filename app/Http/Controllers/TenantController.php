@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\Tenant as TenantCollection;
 use App\Http\Resources\User;
 use App\Tenant;
+use App\Penyewa;
 
 class TenantController extends Controller
 {
@@ -56,5 +57,25 @@ class TenantController extends Controller
                 ],
             ]);
         }
+    }
+
+    public function search(Request $req){
+        $this->validate($req, [
+            'search' => 'required|string',
+        ]);
+
+        $penyewa = Penyewa::where('nama', $req->search)->first();
+
+        $tenant = TenantCollection::collection( $penyewa ? $penyewa->tenant()->get() : Tenant::where('kode', $req->search)->latest()->get());
+        
+        return response()->json([
+            'diagnostic' => [
+                'code' => 200,
+                'message' => 'success'
+            ],
+            "response" => [
+                'data' => $tenant
+            ]
+        ]);
     }
 }
