@@ -101,6 +101,9 @@ class TransaksiController extends Controller
                         $file->sisa= 0;
                         $file->save();
                         $sim = $sisa;
+                        $tenant = Tenant::findOrFail($req->tenant_id);
+                        $tenant->status_tagih = "lunas";
+                        $tenant->save();
                     } else{
                         $file->dibayar = $sim;
                         $sisa = $sim - $file->sisa;
