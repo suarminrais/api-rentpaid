@@ -17,6 +17,7 @@ class TunggakanCollection extends ResourceCollection
             "last_page" => $resource->lastPage(),
             "path" => $resource->path(),
             'per_page' => $resource->perPage(),
+            'total' => $resource->total(),
             // "to" => $resource->to(),
         ];
 
