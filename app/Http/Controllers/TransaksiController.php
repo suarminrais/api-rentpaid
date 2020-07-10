@@ -26,6 +26,9 @@ class TransaksiController extends Controller
         ]);
         
         $tenant = Tenant::findOrFail($req->tenant_id);
+        $tenant->status_tagih = $req->status;
+        $tenant->save();
+
         $harga = ($tenant->kategori->tarif->bop 
                             + ($tenant->kategori->tarif->bop * 0.1)
                             + $tenant->kategori->tarif->permeter
