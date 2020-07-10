@@ -60,9 +60,9 @@ class TransaksiController extends Controller
         $this->validate($req,[
             "kode" => "required"
         ]);
-        return Tunggakan::collection(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->where('kode', "like", "%$req->kode%")->whereHas('transaksi', function (Builder $query) {
+        return new TunggakanCollection(Tunggakan::collection(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->where('kode', "like", "%$req->kode%")->whereHas('transaksi', function (Builder $query) {
     $query->where('status', 'menunggak');
-})->paginate(20));
+})->paginate(20)));
     }
 
     public function tunggakanSingle($id)
