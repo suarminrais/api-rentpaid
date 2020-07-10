@@ -7,6 +7,7 @@ use App\Tenant;
 use App\Transaksi;
 use App\Lokasi;
 use App\Http\Resources\Tunggakan;
+use Illuminate\Database\Eloquent\Builder;
 
 class TransaksiController extends Controller
 {
@@ -48,7 +49,19 @@ class TransaksiController extends Controller
 
     public function tunggakan()
     {
-        return Tunggakan::collection(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->where('penyewa_id', "<>", null)->paginate(20));
+        return Tunggakan::collection(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->whereHas('transaksi', function (Builder $query) {
+    $query->where('status', 'menunggak');
+})->paginate(20));
+    }
+
+    public function search(Request $req)
+    {
+        $this->validate($req,[
+            "kode" => "required"
+        ]);
+        return Tunggakan::collection(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->where('kode', "like", "%$req->kode%")->whereHas('transaksi', function (Builder $query) {
+    $query->where('status', 'menunggak');
+})->paginate(20));
     }
 
     public function tunggakanSingle($id)
