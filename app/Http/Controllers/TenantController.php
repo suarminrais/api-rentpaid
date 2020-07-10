@@ -66,7 +66,7 @@ class TenantController extends Controller
 
         $penyewa = Penyewa::where('nama','like', "%$req->search%")->first();
 
-        $tenant = TenantCollection::collection( $penyewa ? $penyewa->tenant()->get() : Tenant::where('kode', $req->search)->latest()->get());
+        $tenant = TenantCollection::collection( $penyewa ? $penyewa->tenant()->get() : Tenant::where('kode', 'like', "%$req->search%")->latest()->get());
         
         return response()->json([
             'diagnostic' => [
