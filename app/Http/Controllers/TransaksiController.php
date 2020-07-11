@@ -126,4 +126,36 @@ class TransaksiController extends Controller
             ]
         ]);
     }
+
+    public function sesi(Request $req)
+    {
+        $this->validate($req,[
+            "id_collector" => "required",
+            "jam_masuk" => "required",
+            "jam_keluar" => "required",
+        ]);
+
+        $user = \Auth::user();
+
+        $data = Transaksi::where('user_id', $req->id_collector)
+            ->whereBetween('created_at', [$req->jam_masuk, $req->jam_keluar])
+            ->orWhereBetween('updated_at', [$req->jam_masuk, $req->jam_keluar]);
+
+        return response()->json([
+            "diagnostic" => [
+                'code' => 200,
+                "message" => "akhir sesi"
+            ],
+            "response" => [
+                "data" => [
+                    "id_collector" => $req->id_collector,
+                    "nama_collector" => $user->name,
+                    "jam_masuk" => $req->jam_masuk,
+                    "jam_keluar" => $req->jam_keluar,
+                    "total_bayar" => $data->sum("dibayar") + $data->sum("sisa"),
+                    "total_penagihan" => $data->count()
+                ]
+            ]
+        ]);
+    }
 }

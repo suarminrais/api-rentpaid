@@ -32,6 +32,9 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('search', 'TransaksiController@search');
     $router->get('tunggakan/{id}', 'TransaksiController@tunggakanSingle');
 
+    //akhir sesi
+    $router->post('sesi', 'TransaksiController@sesi');
+
     //transaksi route
     $router->post('transaksi', 'TransaksiController@store');
 
