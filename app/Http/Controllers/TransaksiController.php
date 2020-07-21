@@ -23,6 +23,7 @@ class TransaksiController extends Controller
             'status' => 'required', 
             'dibayar' => 'required', 
             'tanggal' => 'required', 
+            'shift' => 'required', 
         ]);
         
         $tenant = Tenant::findOrFail($req->tenant_id);
