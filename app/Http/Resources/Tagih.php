@@ -13,7 +13,7 @@ class Tagih extends JsonResource
             "kode_tenant" => $this->kode,
             "harga" => ($this->kategori->tarif->bop 
                             + ($this->kategori->tarif->bop * 0.1)
-                            + $this->kategori->tarif->permeter
+                            + ($this->kategori->tarif->permeter * $this->luas)
                             + $this->kategori->tarif->barang 
                             + $this->kategori->tarif->listrik 
                             + $this->kategori->tarif->sampah 
