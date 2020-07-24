@@ -24,6 +24,7 @@ class TransaksiController extends Controller
             'dibayar' => 'required', 
             'tanggal' => 'required', 
             'shift' => 'required', 
+            'detail' => 'required|json', 
         ]);
         
         $tenant = Tenant::findOrFail($req->tenant_id);
@@ -39,7 +40,10 @@ class TransaksiController extends Controller
                             + $tenant->kategori->tarif->air);
         $sisa = $harga - $req->dibayar;
         $user = \Auth::user();
-        $req->merge(['sisa' => $sisa, 'user_id' => $user->id]);
+        $req->merge([
+            'sisa' => $sisa, 
+            'user_id' => $user->id,
+        ]);
 
         return response()->json([
             "diagnostic" => [
