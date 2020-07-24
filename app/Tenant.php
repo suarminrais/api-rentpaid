@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Tenant extends Model
 {
     protected $fillable = [
-        'kategori_id', 'luas', 'disewa', 'status', 'lokasi_id', 'penyewa_id', 'kode', 'barat', 'timur', 'utara', 'selatan'
+        'kategori_id', 'luas', 'disewa', 'status', 'lokasi_id', 'penyewa_id', 'kode', 'barat', 'timur', 'utara', 'selatan', 'created_at'
     ];
 
     public function penyewa(){

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Penyewa extends Model
 {
     protected $fillable = [
-        'nama', 'hp', 'ktp', 'alamat', 'status'
+        'nama', 'hp', 'ktp', 'alamat', 'status', 'created_at'
     ];
 
     public function tenant() {
