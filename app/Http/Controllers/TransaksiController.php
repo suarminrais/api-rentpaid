@@ -9,6 +9,7 @@ use App\Lokasi;
 use App\Http\Resources\Tunggakan;
 use App\Http\Resources\TunggakanCollection;
 use Illuminate\Database\Eloquent\Builder;
+use App\User;
 
 class TransaksiController extends Controller
 {
@@ -40,9 +41,12 @@ class TransaksiController extends Controller
                             + $tenant->kategori->tarif->air);
         $sisa = $harga - $req->dibayar;
         $user = \Auth::user();
+        $data = User::findOrFail(User::findOrFail($user->user_id)->user_id);
         $req->merge([
             'sisa' => $sisa, 
             'user_id' => $user->id,
+            'lokasi_id' => $user->lokasi_id,
+            'owner_id' => $data->id,
         ]);
 
         return response()->json([
