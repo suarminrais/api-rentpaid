@@ -34,12 +34,12 @@ class TransaksiController extends Controller
 
         $detail = json_decode($req->detail);
 
-        $harga = (($detail->bop && 0) 
-                            + ($detail->permeter && 0)
-                            + ($detail->barang && 0)
-                            + ($detail->listrik  && 0)
-                            + ($detail->sampah && 0)
-                            + ($detail->air && 0));
+        $harga = (($detail->bop ?? 0) 
+                            + ($detail->permeter ?? 0)
+                            + ($detail->barang ?? 0)
+                            + ($detail->listrik  ?? 0)
+                            + ($detail->sampah ?? 0)
+                            + ($detail->air ?? 0));
         $sisa = $harga - $req->dibayar;
         $user = \Auth::user();
         $data = User::findOrFail(User::findOrFail($user->user_id)->user_id);
