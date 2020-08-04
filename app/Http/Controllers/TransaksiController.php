@@ -32,13 +32,14 @@ class TransaksiController extends Controller
         $tenant->status_tagih = $req->status;
         $tenant->save();
 
-        $harga = ($tenant->kategori->tarif->bop 
-                            + ($tenant->kategori->tarif->bop * 0.1)
-                            + $tenant->kategori->tarif->permeter
-                            + $tenant->kategori->tarif->barang 
-                            + $tenant->kategori->tarif->listrik 
-                            + $tenant->kategori->tarif->sampah 
-                            + $tenant->kategori->tarif->air);
+        $detail = json_decode($req->detail);
+
+        $harga = (($detail->bop && 0) 
+                            + ($detail->permeter && 0)
+                            + ($detail->barang && 0)
+                            + ($detail->listrik  && 0)
+                            + ($detail->sampah && 0)
+                            + ($detail->air && 0));
         $sisa = $harga - $req->dibayar;
         $user = \Auth::user();
         $data = User::findOrFail(User::findOrFail($user->user_id)->user_id);

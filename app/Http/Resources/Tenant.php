@@ -13,7 +13,6 @@ class Tenant extends JsonResource
             "kode_tenant" => $this->kode,
             "status" => $this->status_tagih,
             "harga" => ($this->kategori->tarif->bop 
-                            + ($this->kategori->tarif->bop * 0.1)
                             + ($this->kategori->tarif->permeter * $this->luas)
                             + $this->kategori->tarif->barang 
                             + $this->kategori->tarif->listrik 
