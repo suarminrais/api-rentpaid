@@ -76,15 +76,13 @@ class TransaksiController extends Controller
         ]);
         $penyewa = Penyewa::where('nama','like', "%$req->kode%")->first();
 
-        dd($penyewa);
-
         $data = Tunggakan::collection(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->where('kode', "like", "%$req->kode%")->whereHas('transaksi', function (Builder $query) {
                     $query->where('status', 'menunggak');
                 })->paginate(20));
 
         return new TunggakanCollection($penyewa ? Tunggakan::collection($penyewa->tenant()->whereHas('transaksi', function (Builder $query){
             $query->where('status', 'menunggak');
-        }))->paginate(20) : $data);
+        })->paginate(20)) : $data);
     }
 
     public function tunggakanSingle($id)
