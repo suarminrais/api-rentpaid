@@ -15,6 +15,6 @@ class TagihController extends Controller
 
     public function index(){
         $user = \Auth::user();
-        return TenantCollection::collection($user->lokasi->tenant()->where('penyewa_id', "<>", null)->paginate(20));
+        return TenantCollection::collection($user->lokasi->tenant()->where('penyewa_id', "<>", null)->orderBy('created_at', 'desc')->paginate(20));
     }
 }

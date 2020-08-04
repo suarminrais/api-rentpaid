@@ -10,6 +10,7 @@ use App\Http\Resources\Tunggakan;
 use App\Http\Resources\TunggakanCollection;
 use Illuminate\Database\Eloquent\Builder;
 use App\User;
+use App\Penyewa;
 
 class TransaksiController extends Controller
 {
@@ -73,9 +74,15 @@ class TransaksiController extends Controller
         $this->validate($req,[
             "kode" => "required"
         ]);
-        return new TunggakanCollection(Tunggakan::collection(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->where('kode', "like", "%$req->kode%")->whereHas('transaksi', function (Builder $query) {
-    $query->where('status', 'menunggak');
-})->paginate(20)));
+        $penyewa = Penyewa::where('nama','like', "%$req->kode%")->first();
+
+        $data = Tunggakan::collection(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->where('kode', "like", "%$req->kode%")->whereHas('transaksi', function (Builder $query) {
+                    $query->where('status', 'menunggak');
+                })->paginate(20));
+
+        return new TunggakanCollection($penyewa ? Tunggakan::collection($penyewa->tenant()->whereHas('transaksi', function (Builder $query){
+            $query->where('status', 'menunggak');
+        }))->paginate(20) : $data);
     }
 
     public function tunggakanSingle($id)
