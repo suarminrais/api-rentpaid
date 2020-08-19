@@ -26,6 +26,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        //
+        $schedule->call(function () {
+            \DB::table('tenants')->where('status_tagih', '<>', 'Belum ditagih')->update(['status_tagih' => 'Belum ditagih']);
+        })->daily();
     }
 }
