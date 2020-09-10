@@ -38,7 +38,7 @@ class TenantController extends Controller
 
     public function show($id){
         try{
-            $tenant = TenantCollection::collection(Tenant::findOrFail($id)->penyewa->tenant);
+            $tenant = new TenantCollection(Tenant::findOrFail($id));
             
             return response()->json([
                 'diagnostic' => [
