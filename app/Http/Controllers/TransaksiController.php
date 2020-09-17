@@ -30,36 +30,51 @@ class TransaksiController extends Controller
         ]);
         
         $tenant = Tenant::findOrFail($req->tenant_id);
-        $tenant->status_tagih = $req->status;
-        $tenant->save();
 
-        $detail = json_decode($req->detail);
+        if ($tenant->lokasi_id == \Auth::user()->lokasi_id) {
+            $tenant->status_tagih = $req->status;
+            $tenant->save();
 
-        $harga = (($detail->bop ?? 0) 
-                            + ($detail->permeter ?? 0)
-                            + ($detail->barang ?? 0)
-                            + ($detail->listrik  ?? 0)
-                            + ($detail->sampah ?? 0)
-                            + ($detail->air ?? 0));
-        $sisa = $harga - $req->dibayar;
-        $user = \Auth::user();
-        $data = User::findOrFail(User::findOrFail($user->user_id)->user_id);
-        $req->merge([
-            'sisa' => $sisa, 
-            'user_id' => $user->id,
-            'lokasi_id' => $user->lokasi_id,
-            'owner_id' => $data->id,
-        ]);
+            $detail = json_decode($req->detail);
 
-        return response()->json([
-            "diagnostic" => [
-                'code' => 201,
-                "message" => "created transaksi"
-            ],
-            "response" => [
-                "data" => Transaksi::create($req->all())
-            ]
-        ]);
+            $harga = (($detail->bop ?? 0) 
+                                + ($detail->permeter ?? 0)
+                                + ($detail->barang ?? 0)
+                                + ($detail->listrik  ?? 0)
+                                + ($detail->sampah ?? 0)
+                                + ($detail->air ?? 0));
+            $sisa = $harga - $req->dibayar;
+            $user = \Auth::user();
+            $data = User::findOrFail(User::findOrFail($user->user_id)->user_id);
+            $req->merge([
+                'sisa' => $sisa, 
+                'user_id' => $user->id,
+                'lokasi_id' => $user->lokasi_id,
+                'owner_id' => $data->id,
+            ]);
+
+            return response()->json([
+                "diagnostic" => [
+                    'code' => 201,
+                    "message" => "created transaksi"
+                ],
+                "response" => [
+                    "data" => Transaksi::create($req->all())
+                ]
+            ]);
+        } else {
+            return response()->json([
+                "diagnostic" => [
+                    'code' => 500,
+                    "message" => "Eror Transaksi"
+                ],
+                "response" => [
+                    "data" => [
+                        "message" => "error"
+                    ]
+                ]
+            ]);
+        }
     }
 
     public function tunggakan()
@@ -106,8 +121,22 @@ class TransaksiController extends Controller
             'dibayar' => 'required', 
         ]);
 
-        $data = Transaksi::where(['tenant_id' => $req->tenant_id, 'status' => 'menunggak'])->get();
+        $data = Transaksi::where(['tenant_id' => $req->tenant_id, 'status' => 'menunggak', 'lokasi_id' => \Auth::user()->lokasi_id])->get();
         $sim = $req->dibayar;
+
+        if($data == NULL) {
+            return response()->json([
+                "diagnostic" => [
+                    'code' => 500,
+                    "message" => "error bayar tunggakan"
+                ],
+                "response" => [
+                    "data" => [
+                        "dibayar" => "gagal bayar"
+                    ]
+                ]
+            ]);
+        }
         
         foreach ($data as $file) {
             if($sim >= 0){

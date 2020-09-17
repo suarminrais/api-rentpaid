@@ -59,6 +59,29 @@ class TenantController extends Controller
         }
     }
 
+    public function showRev($id){
+        try{
+            $tenant = TenantCollection::collection(Tenant::findOrFail($id)->penyewa->tenant);
+            
+            return response()->json([
+                'diagnostic' => [
+                    'code' => 200,
+                    'message' => 'success'
+                ],
+                "response" => [
+                    'data' => $tenant
+                ]
+            ]);
+        } catch (\Exception $e){
+            return response()->json([
+                'diagnostic' => [
+                    'code' => 404,
+                    'message' => 'Data tenant not found'
+                ],
+            ]);
+        }
+    }
+
     public function find($tenant){
         try{
             $tenant = TenantCollection::collection(Tenant::where('kode',$tenant)->first()->penyewa->tenant);
