@@ -200,7 +200,8 @@ class TransaksiController extends Controller
                     "jam_keluar" => $req->jam_keluar,
                     "total_bayar" => $data->where('status', '<>', 'menunggak')->count(),
                     "total_tunggakan" => $data->where('status', 'menunggak')->count(),
-                    "total_penagihan" =>  $data->sum("dibayar")
+                    "total_penagihan" =>  $data->where('status', '<>', 'menunggak')->sum("dibayar"),
+                    "total_menunggak" =>  $data->where('status', 'menunggak')->sum("sisa"),
                 ]
             ]
         ]);
