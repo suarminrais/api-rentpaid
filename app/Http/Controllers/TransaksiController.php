@@ -206,4 +206,56 @@ class TransaksiController extends Controller
             ]
         ]);
     }
+
+    public function bayar2(Request $req)
+    {
+        $this->validate($req, [
+            'tenant_id' => 'required', 
+            'dibayar' => 'required', 
+        ]);
+
+        $penyewa = Tenant::findOrFail($req->tenant_id)->penyewa;
+        $sim = $req->dibayar;
+        
+        $tenants = $penyewa->tenant()->whereHas('transaksi', function (Builder $query){
+            $query->where('status', 'menunggak');
+        })->get();
+
+        foreach ($tenants as $tenant) {
+            $tunggakan = $tenant->transaksi()->where(['tenant_id' => $req->tenant_id, 'status' => 'menunggak', 'lokasi_id' => \Auth::user()->lokasi_id])->get();
+            foreach ($tunggakan as $file) {
+                if($sim >= 0){
+                    if($sim - $file->sisa >= 0){
+                            $file->dibayar = $file->sisa;
+                            $sisa = $sim - $file->sisa;
+                            $file->status = "lunas";
+                            $file->sisa= 0;
+                            $file->save();
+                            $sim = $sisa;
+                            $tenant = Tenant::findOrFail($req->tenant_id);
+                            $tenant->status_tagih = "lunas";
+                            $tenant->save();
+                        } else{
+                            $file->dibayar = $sim;
+                            $sisa = $sim - $file->sisa;
+                            $file->sisa= $file->sisa - $sim;
+                            $file->save();
+                            $sim = $sisa;
+                        }
+                    }
+            }
+        }
+
+        return response()->json([
+            "diagnostic" => [
+                'code' => 200,
+                "message" => "bayar tunggakan"
+            ],
+            "response" => [
+                "data" => [
+                    "dibayar" => "oke"
+                ]
+            ]
+        ]);
+    }
 }
