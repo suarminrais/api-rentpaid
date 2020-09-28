@@ -258,4 +258,73 @@ class TransaksiController extends Controller
             ]
         ]);
     }
+
+    public function store2(Request $req) {
+        $this->validate($req, [
+            'tenants' => 'required|json', 
+            'total' => 'required', 
+        ]);
+
+        $tenants = json_decode($req->tenants);
+        $total = $req->total;
+        try {
+            foreach ($tenants as $data) {
+                $tenant = Tenant::findOrFail($data->tenant_id);
+                $tenant->status_tagih = $data->status;
+                $tenant->save();
+
+                $detail = json_decode($data->detail);
+
+                $harga = (($detail->bop ?? 0) 
+                                    + ($detail->permeter ?? 0)
+                                    + ($detail->barang ?? 0)
+                                    + ($detail->listrik  ?? 0)
+                                    + ($detail->sampah ?? 0)
+                                    + ($detail->air ?? 0));
+                if($total >= $harga){
+                    $sisa = 0;
+                    $data->status = 'lunas';
+                    $total -= $harga;
+                }else{
+                    $sisa = $harga - $total;
+                    $data->status = 'menunggak';
+                    $total -= $harga;
+                }
+                
+                $user = \Auth::user();
+                $data = User::findOrFail(User::findOrFail($user->user_id)->user_id);
+                $data->merge([
+                    'sisa' => $sisa, 
+                    'user_id' => $user->id,
+                    'lokasi_id' => $user->lokasi_id,
+                    'owner_id' => $data->id,
+                ]);
+
+                Transaksi::create($data->all());
+            }
+            return response()->json([
+                "diagnostic" => [
+                    'code' => 200,
+                    "message" => "Sukses"
+                ],
+                "response" => [
+                    "data" => [
+                        "message" => "sukses"
+                    ]
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                "diagnostic" => [
+                    'code' => 500,
+                    "message" => "Eror Transaksi"
+                ],
+                "response" => [
+                    "data" => [
+                        "message" => "error"
+                    ]
+                ]
+            ]);
+        }
+    }
 }

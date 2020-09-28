@@ -40,6 +40,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
 
     //transaksi route
     $router->post('transaksi', 'TransaksiController@store');
+    $router->post('transaksi-multi', 'TransaksiController@store2');
 
     //penagihan route
     $router->get('tagihan', 'TagihController@index');
