@@ -41,7 +41,7 @@ class TunggakanCollection extends ResourceCollection
                 'code' => 200,
                 'message' => 'success'
             ],
-            "total_tunggakan" => Transaksi::where('status', "menunggak")->sum('sisa')
+            "total_tunggakan" => Transaksi::where('status', "menunggak")->where('lokasi_id', \Auth::user()->lokasi_id)->sum('sisa')
         ];
     }
 }
