@@ -96,7 +96,7 @@ class TransaksiController extends Controller
                 })->paginate(20));
 
         return new TunggakanCollection($penyewa ? Tunggakan::collection($penyewa->tenant()->whereHas('transaksi', function (Builder $query){
-            $query->where('status', 'menunggak');
+            $query->where('status', 'menunggak')->where('lokasi_id',\Auth::user()->lokasi_id);
         })->paginate(20)) : $data);
     }
 
