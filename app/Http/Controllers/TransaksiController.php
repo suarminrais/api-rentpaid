@@ -7,7 +7,9 @@ use App\Tenant;
 use App\Transaksi;
 use App\Lokasi;
 use App\Http\Resources\Tunggakan;
+use App\Http\Resources\Tunggak;
 use App\Http\Resources\TunggakanCollection;
+use App\Http\Resources\TunggakCollection;
 use Illuminate\Database\Eloquent\Builder;
 use App\User;
 use App\Penyewa;
@@ -89,15 +91,22 @@ class TransaksiController extends Controller
         $this->validate($req,[
             "kode" => "required"
         ]);
-        $penyewa = Penyewa::where('nama','like', "%$req->kode%")->where('lokasi_id',\Auth::user()->lokasi_id)->first();
+        // $penyewa = Penyewa::where('nama','like', "%$req->kode%")->where('lokasi_id',\Auth::user()->lokasi_id)->first();
 
-        $data = Tunggakan::collection(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->where('kode', "like", "%$req->kode%")->whereHas('transaksi', function (Builder $query) {
-                    $query->where('status', 'menunggak');
-                })->paginate(20));
+        // $data = Tunggakan::collection(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->where('kode', "like", "%$req->kode%")->whereHas('transaksi', function (Builder $query) {
+        //             $query->where('status', 'menunggak');
+        //         })->paginate(20));
 
-        return new TunggakanCollection($penyewa ? Tunggakan::collection($penyewa->tenant()->whereHas('transaksi', function (Builder $query){
-            $query->where('status', 'menunggak')->where('lokasi_id',\Auth::user()->lokasi_id);
-        })->paginate(20)) : $data);
+        // return new TunggakanCollection($penyewa ? Tunggakan::collection($penyewa->tenant()->whereHas('transaksi', function (Builder $query){
+        //     $query->where('status', 'menunggak')->where('lokasi_id',\Auth::user()->lokasi_id);
+        // })->paginate(20)) : $data);
+        $tunggakan = Transaksi::leftJoin('tenants', 'transaksis.tenant_id', '=', 'tenants.id')
+                    ->leftJoin('penyewas', 'tenants.penyewa_id', '=', 'penyewas.id')
+                    ->where('penyewas.nama', 'like', "%$req->kode%")->orWhere('kode', 'like', "%$req->kode%")
+                    ->where(['transaksis.lokasi_id' => \Auth::user()->lokasi_id, 'transaksis.status' => 'menunggak'])
+                    ->groupBy('penyewas.nama')
+                    ->paginate(20);
+        return new TunggakCollection(Tunggak::collection($tunggakan));
     }
 
     public function tunggakanSingle($id)
