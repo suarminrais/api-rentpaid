@@ -310,11 +310,11 @@ class TransaksiController extends Controller
             return response()->json([
                 "diagnostic" => [
                     'code' => 200,
-                    "message" => "Sukses"
+                    "message" => "bayar tagihan"
                 ],
                 "response" => [
                     "data" => [
-                        "message" => "sukses"
+                        "dibayar" => "oke"
                     ]
                 ]
             ]);

@@ -110,10 +110,11 @@ class TenantController extends Controller
             'search' => 'required|string',
         ]);
 
-        $penyewa = Penyewa::where('nama','like', "%$req->search%")->first();
-
-        $tenant = TenantCollection::collection( $penyewa ? $penyewa->tenant()->paginate(20) : Tenant::where('kode', 'like', "%$req->search%")->latest()->paginate(20));
+        $data = Tenant::where('tenants.lokasi_id', \Auth::user()->lokasi_id)
+                    ->leftJoin('penyewas', 'tenants.penyewa_id', '=', 'penyewas.id')
+                    ->where('penyewas.nama', 'like', "%$req->search%")->orWhere('tenants.kode', 'like', "%$req->search%")
+                    ->select('tenants.*', 'penyewas.nama');
         
-        return $tenant;
+        return TenantCollection::collection($data->paginate(20));
     }
 }
