@@ -102,7 +102,7 @@ class TransaksiController extends Controller
         // })->paginate(20)) : $data);
         $tunggakan = Transaksi::leftJoin('tenants', 'transaksis.tenant_id', '=', 'tenants.id')
                     ->leftJoin('penyewas', 'tenants.penyewa_id', '=', 'penyewas.id')
-                    ->where('penyewas.nama', 'like', "%$req->kode%")->orWhere('kode', 'like', "%$req->kode%")
+                    ->where('penyewas.nama', 'like', "%$req->kode%")->orWhere('tenants.kode', 'like', "%$req->kode%")
                     ->where(['transaksis.lokasi_id' => \Auth::user()->lokasi_id, 'transaksis.status' => 'menunggak'])
                     ->groupBy('penyewas.nama')
                     ->paginate(20);
@@ -270,14 +270,15 @@ class TransaksiController extends Controller
 
     public function store2(Request $req) {
         $this->validate($req, [
-            'tenants' => 'required|json', 
+            'tenants' => 'required|array', 
             'total' => 'required', 
         ]);
 
-        $tenants = json_decode($req->tenants);
+        $tenants = $req->tenants;
         $total = $req->total;
-        try {
+        // try {
             foreach ($tenants as $data) {
+                return dd((object)$data);
                 $tenant = Tenant::findOrFail($data->tenant_id);
                 $tenant->status_tagih = $data->status;
                 $tenant->save();
@@ -322,18 +323,18 @@ class TransaksiController extends Controller
                     ]
                 ]
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                "diagnostic" => [
-                    'code' => 500,
-                    "message" => "Eror Transaksi"
-                ],
-                "response" => [
-                    "data" => [
-                        "message" => "error"
-                    ]
-                ]
-            ]);
-        }
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         "diagnostic" => [
+        //             'code' => 500,
+        //             "message" => "Eror Transaksi"
+        //         ],
+        //         "response" => [
+        //             "data" => [
+        //                 "message" => "error"
+        //             ]
+        //         ]
+        //     ]);
+        // }
     }
 }
