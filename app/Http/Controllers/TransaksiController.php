@@ -104,7 +104,7 @@ class TransaksiController extends Controller
                     ->leftJoin('penyewas', 'tenants.penyewa_id', '=', 'penyewas.id')
                     ->where('penyewas.nama', 'like', "%$req->kode%")->orWhere('tenants.kode', 'like', "%$req->kode%")
                     ->where(['transaksis.lokasi_id' => \Auth::user()->lokasi_id, 'transaksis.status' => 'menunggak'])
-                    ->where('penyewas.lokasi_id', \Auth::user()->lokasi_id)
+                    ->where('transaksis.lokasi_id', \Auth::user()->lokasi_id)
                     ->groupBy('penyewas.nama')
                     ->paginate(20);
         return new TunggakCollection(Tunggak::collection($tunggakan));
