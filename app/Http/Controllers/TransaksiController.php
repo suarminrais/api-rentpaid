@@ -89,7 +89,7 @@ class TransaksiController extends Controller
         $this->validate($req,[
             "kode" => "required"
         ]);
-        $penyewa = Penyewa::where('nama','like', "%$req->kode%")->first();
+        $penyewa = Penyewa::where('nama','like', "%$req->kode%")->where('lokasi_id',\Auth::user()->lokasi_id)->first();
 
         $data = Tunggakan::collection(Lokasi::findOrFail(\Auth::user()->lokasi_id)->tenant()->where('kode', "like", "%$req->kode%")->whereHas('transaksi', function (Builder $query) {
                     $query->where('status', 'menunggak');
