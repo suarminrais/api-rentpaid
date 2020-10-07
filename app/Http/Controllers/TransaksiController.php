@@ -103,8 +103,9 @@ class TransaksiController extends Controller
         $tunggakan = Transaksi::leftJoin('tenants', 'transaksis.tenant_id', '=', 'tenants.id')
                     ->leftJoin('penyewas', 'tenants.penyewa_id', '=', 'penyewas.id')
                     ->where('penyewas.nama', 'like', "%$req->kode%")->orWhere('tenants.kode', 'like', "%$req->kode%")
-                    ->groupBy('penyewas.nama')
+                    ->select('transaksis.*', 'penyewas.nama', 'tenants.kode')
                     ->where(['transaksis.lokasi_id' => \Auth::user()->lokasi_id, 'transaksis.status' => 'menunggak'])
+                    ->groupBy('penyewas.nama')
                     ->paginate(20);
         return new TunggakCollection(Tunggak::collection($tunggakan));
     }
@@ -278,8 +279,8 @@ class TransaksiController extends Controller
         $total = $req->total;
         // try {
             foreach ($tenants as $data) {
-                $rew = (object)json_encode($data);
-                dd($rew['tenant_id']);
+                $rew = (object)$data;
+                dd($rew);
                 $tenant = Tenant::findOrFail($data->tenant_id);
                 $tenant->status_tagih = $data->status;
                 $tenant->save();
