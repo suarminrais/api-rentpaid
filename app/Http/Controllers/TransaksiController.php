@@ -269,43 +269,53 @@ class TransaksiController extends Controller
         $total = $req->total;
         try {
             foreach ($tenants as $data) {
-                $rew = json_decode($data);
-                $detail = json_decode($rew->detail);
-
-                $harga = (($detail->bop ?? 0) 
-                                    + ($detail->permeter ?? 0)
-                                    + ($detail->barang ?? 0)
-                                    + ($detail->listrik  ?? 0)
-                                    + ($detail->sampah ?? 0)
-                                    + ($detail->air ?? 0));
+                $harga = (($data['detail']['bop'] ?? 0) 
+                                    + ($data['detail']['permeter'] ?? 0)
+                                    + ($data['detail']['barang'] ?? 0)
+                                    + ($data['detail']['listrik']  ?? 0)
+                                    + ($data['detail']['sampah'] ?? 0)
+                                    + ($data['detail']['air'] ?? 0));
                 
                 $sisa = 0;
                 
                 if($total >= $harga){
-                    $rew->status = 'lunas';
+                    $data['status'] = 'lunas';
                     $total -= $harga;
-                    $tenant = Tenant::findOrFail($rew->tenant_id);
-                    $tenant->status_tagih = $rew->status;
+                    $tenant = Tenant::findOrFail($data['tenant_id']);
+                    $tenant->status_tagih = $data['status'];
+                    $data['dibayar'] = $harga;
                     $tenant->save();
                 }else{
                     $sisa = $harga - $total;
-                    $rew->status = 'menunggak';
+                    $data['status'] = 'menunggak';
+                    $data['dibayar'] = $total;
                     $total -= $harga;
-                    $tenant = Tenant::findOrFail($rew->tenant_id);
-                    $tenant->status_tagih = $rew->status;
+                    $tenant = Tenant::findOrFail($data['tenant_id']);
+                    $tenant->status_tagih = $data['status'];
                     $tenant->save();
                 }
                 
                 $user = \Auth::user();
                 $data2 = User::findOrFail(User::findOrFail($user->user_id)->user_id);
-                $rew->merge([
-                    'sisa' => $sisa, 
-                    'user_id' => $user->id,
-                    'lokasi_id' => $user->lokasi_id,
-                    'owner_id' => $data2->id,
-                ]);
 
-                Transaksi::create($rew->all());
+                $data['sisa'] = $sisa;
+                $data['user_id'] = $user->id;
+                $data['lokasi_id'] = $user->lokasi_id;
+                $data['owner_id'] = $data2->id;
+
+                $d = Transaksi::create([
+                    'tenant_id' => $data['tenant_id'], 
+                    'status' => $data['status'],
+                    'dibayar' => $data['dibayar'], 
+                    'sisa' => $data['sisa'], 
+                    'tanggal' => $data['tanggal'], 
+                    'user_id' => $data['user_id'], 
+                    'shift' => $data['shift'], 
+                    'detail' => json_encode($data['detail']), 
+                    'created_at' => $data['created_at'], 
+                    'owner_id' => $data['owner_id'], 
+                    'lokasi_id' => $data['lokasi_id']
+                ]);
             }
             return response()->json([
                 "diagnostic" => [
