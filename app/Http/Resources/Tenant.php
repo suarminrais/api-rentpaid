@@ -20,6 +20,7 @@ class Tenant extends JsonResource
                             + $this->kategori->tarif->air),
             "tarif" => $this->kategori->tarif,
             "penyewa" => ($this->penyewa) ? $this->penyewa->nama : '',
+            "penyewa_id" => ($this->penyewa) ? $this->penyewa->id : '',
             "lokasi" => $this->lokasi->lokasi,
             "tunggakan" => $this->transaksi()->where('status', 'menunggak')->sum('sisa')
         ];

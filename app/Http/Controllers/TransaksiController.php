@@ -24,6 +24,7 @@ class TransaksiController extends Controller
     public function store(Request $req) {
         $this->validate($req, [
             'tenant_id' => 'required', 
+            'penyewa_id' => 'required', 
             'status' => 'required', 
             'dibayar' => 'required', 
             'tanggal' => 'required', 
@@ -212,17 +213,18 @@ class TransaksiController extends Controller
         $this->validate($req, [
             'tenant_id' => 'required', 
             'dibayar' => 'required', 
+            'penyewa_id' => 'required'
         ]);
 
-        $penyewa = Tenant::findOrFail($req->tenant_id)->penyewa;
+        // $penyewa = Tenant::findOrFail($req->tenant_id)->penyewa;
         $sim = $req->dibayar;
         
-        $tenants = $penyewa->tenant()->whereHas('transaksi', function (Builder $query){
-            $query->where('status', 'menunggak');
-        })->get();
+        // $tenants = $penyewa->tenant()->whereHas('transaksi', function (Builder $query){
+        //     $query->where('status', 'menunggak');
+        // })->get();
 
-        foreach ($tenants as $tenant) {
-            $tunggakan = $tenant->transaksi()->where(['tenant_id' => $req->tenant_id, 'status' => 'menunggak', 'lokasi_id' => \Auth::user()->lokasi_id])->get();
+        // foreach ($tenants as $tenant) {
+            $tunggakan = Transaksi::where(['penyewa_id' => $req->penyewa_id, 'status' => 'menunggak', 'lokasi_id' => \Auth::user()->lokasi_id])->get();
             foreach ($tunggakan as $file) {
                 if($sim >= 0){
                     if($sim - $file->sisa >= 0){
@@ -244,7 +246,7 @@ class TransaksiController extends Controller
                         }
                     }
             }
-        }
+        // }
 
         return response()->json([
             "diagnostic" => [
@@ -262,6 +264,7 @@ class TransaksiController extends Controller
     public function store2(Request $req) {
         $this->validate($req, [
             'tenants' => 'required|array', 
+            'penyewa_id' => 'required', 
             'total' => 'required', 
         ]);
 
@@ -323,7 +326,8 @@ class TransaksiController extends Controller
                     'detail' => json_encode($data['detail']), 
                     'created_at' => $data['created_at'], 
                     'owner_id' => $data['owner_id'], 
-                    'lokasi_id' => $data['lokasi_id']
+                    'lokasi_id' => $data['lokasi_id'],
+                    'penyewa_id' => $req->penyewa_id
                 ]);
             }
             return response()->json([

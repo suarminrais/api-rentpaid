@@ -12,6 +12,7 @@ class Tunggak extends JsonResource
             "id" => $this->tenant->id,
             "kode_tenant" => $this->kode,
             "penyewa" => $this->nama,
+            "penyewa_id" => $this->tenant->penyewa->id,
             "total_tunggakan" => $this->tenant->transaksi()->where('status', 'menunggak')->sum('sisa'),
             "tunggakan" => $this->tenant->transaksi()->where('status', 'menunggak')->get(['id', 'sisa as harga', 'tanggal'])
         ];

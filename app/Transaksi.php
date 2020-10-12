@@ -7,11 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Transaksi extends Model
 {
     protected $fillable = [
-        'tenant_id', 'status', 'dibayar', 'sisa', 'tanggal', 'user_id', 'shift', 'detail', 'created_at', 'owner_id', 'lokasi_id'
+        'tenant_id', 'penyewa_id', 'status', 'dibayar', 'sisa', 'tanggal', 'user_id', 'shift', 'detail', 'created_at', 'owner_id', 'lokasi_id'
     ];
 
     public function tenant(){
         return $this->belongsTo('App\Tenant');
+    }
+
+    public function penyewa(){
+        return $this->belongsTo('App\Penyewa');
     }
 
     public function collector(){
