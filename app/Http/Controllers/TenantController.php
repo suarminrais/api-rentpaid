@@ -61,7 +61,8 @@ class TenantController extends Controller
 
     public function showRev($id){
         try{
-            $tenant = TenantCollection::collection(Tenant::where('id',$id)->orWhere('kode','like',"%$id%")->first()->penyewa->tenant);
+            $tenant = TenantCollection::collection(Tenant::where('id',$id)->orWhere('kode','like',"%$id%")
+                ->where('lokasi_id', \Auth::user()->lokasi_id)->first()->penyewa->tenant);
             
             return response()->json([
                 'diagnostic' => [
