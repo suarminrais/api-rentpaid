@@ -297,9 +297,14 @@ class TransaksiController extends Controller
                         $data['dibayar'] = $harga;
                         $tenant->save();
                     }else{
-                        $sisa = $harga - $total;
                         $data['status'] = 'menunggak';
-                        $data['dibayar'] = $total;
+                        if($total < 0){
+                            $sisa = $harga;
+                            $data['dibayar'] = 0;
+                        } else{
+                            $sisa = $harga - $total;
+                            $data['dibayar'] = $total;
+                        }
                         $total -= $harga;
                         $tenant = Tenant::findOrFail($data['tenant_id']);
                         $tenant->status_tagih = $data['status'];
