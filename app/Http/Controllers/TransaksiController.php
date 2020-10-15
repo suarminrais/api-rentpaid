@@ -296,23 +296,20 @@ class TransaksiController extends Controller
                         $tenant->status_tagih = $data['status'];
                         $data['dibayar'] = $harga;
                         $tenant->save();
-                    }else if($total > 0){
+                    }else{
                         $data['status'] = 'menunggak';
-                        $sisa = $harga - $total;
-                        $data['dibayar'] = $total;
+                        if($total < 0){
+                            $sisa = $harga;
+                            $data['dibayar'] = 0;
+                        }else{
+                            $sisa = $harga - $total;
+                            $data['dibayar'] = $total;
+                        }
                         $total -= $harga;
                         $tenant = Tenant::findOrFail($data['tenant_id']);
                         $tenant->status_tagih = $data['status'];
                         $tenant->save();
-                    } else{
-                        $data['status'] = 'menunggak';
-                        $sisa = $harga;
-                        $data['dibayar'] = 0;
-                        $total -= $harga;
-                        $tenant = Tenant::findOrFail($data['tenant_id']);
-                        $tenant->status_tagih = $data['status'];
-                        $tenant->save();
-                    }
+                    } 
                 }
                 
                 $user = \Auth::user();
