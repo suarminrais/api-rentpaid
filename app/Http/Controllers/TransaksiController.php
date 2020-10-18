@@ -13,6 +13,7 @@ use App\Http\Resources\TunggakCollection;
 use Illuminate\Database\Eloquent\Builder;
 use App\User;
 use App\Penyewa;
+use App\HistoryTransaksi as HsR;
 
 class TransaksiController extends Controller
 {
@@ -59,7 +60,8 @@ class TransaksiController extends Controller
             $transaksi = Transaksi::create($req->all());
             $transaksi->history()->create([
                 'transaksi_id' => $transaksi->id,
-                'tanggal' => $req->tanggal,
+                'user_id' => \Auth::user()->id,
+                'tanggal' => $transaksi->created_at,
                 'menu' => 'penagihan',
                 'dibayar' => $req->dibayar,
                 'sisa' => $req->sisa
@@ -129,7 +131,7 @@ class TransaksiController extends Controller
         $this->validate($req, [
             'tenant_id' => 'required', 
             'dibayar' => 'required', 
-            'tanggal' => 'required', 
+            'created_at' => 'required', 
         ]);
 
         $data = Transaksi::where(['tenant_id' => $req->tenant_id, 'status' => 'menunggak', 'lokasi_id' => \Auth::user()->lokasi_id])->get();
@@ -154,16 +156,17 @@ class TransaksiController extends Controller
                 if($sim - $file->sisa >= 0){
                         $file->dibayar = $file->sisa;
                         $sisa = $sim - $file->sisa;
+                        $file->history()->create([
+                            'transaksi_id' => $file->id,
+                            'user_id' => \Auth::user()->id,
+                            'dibayar' => $file->sisa,
+                            'sisa' => 0,
+                            'tanggal' => $req->created_at,
+                            'menu' => 'daftar_tunggakan'
+                        ]);
                         $file->status = "lunas";
                         $file->sisa= 0;
                         $file->save();
-                        $file->history()->create([
-                            'transaksi_id' => $file->id,
-                            'dibayar' => $file->sisa,
-                            'sisa' => 0,
-                            'tanggal' => $req->tanggal,
-                            'menu' => 'daftar_tunggakan'
-                        ]);
                         $sim = $sisa;
                         $tenant = Tenant::findOrFail($req->tenant_id);
                         $tenant->status_tagih = "lunas";
@@ -175,9 +178,10 @@ class TransaksiController extends Controller
                         $file->save();
                         $file->history()->create([
                             'transaksi_id' => $file->id,
+                            'user_id' => \Auth::user()->id,
                             'dibayar' => $sim,
                             'sisa' => $file->sisa - $sim,
-                            'tanggal' => $req->tanggal,
+                            'tanggal' => $req->created_at,
                             'menu' => 'daftar_tunggakan'
                         ]);
                         $sim = $sisa;
@@ -208,9 +212,8 @@ class TransaksiController extends Controller
 
         $user = \Auth::user();
 
-        $data = Transaksi::where('user_id', $req->id_collector)
-            ->whereBetween('created_at', [$req->jam_masuk, $req->jam_keluar])
-            ->orWhereBetween('updated_at', [$req->jam_masuk, $req->jam_keluar]);
+        $data = HsR::where('user_id', $req->id_collector)
+            ->whereBetween('created_at', [$req->jam_masuk, $req->jam_keluar]);
 
         return response()->json([
             "diagnostic" => [
@@ -223,10 +226,12 @@ class TransaksiController extends Controller
                     "nama_collector" => $user->name,
                     "jam_masuk" => $req->jam_masuk,
                     "jam_keluar" => $req->jam_keluar,
-                    "total_bayar" => $data->where('status', '<>', 'menunggak')->count(),
-                    "total_tunggakan" => $data->where('status', 'menunggak')->count(),
-                    "total_penagihan" =>  $data->where('status', '<>', 'menunggak')->sum("dibayar"),
-                    "total_menunggak" =>  $data->where('status', 'menunggak')->sum("sisa"),
+                    "tagihan" => $data->where('menu', 'penagihan')->count(),
+                    "tunggakan" => $data->where('menu', 'daftar_tunggakan')->count(),
+                    "total_tagihan" =>  $data->where('menu', 'penagihan')->sum("dibayar"),
+                    "total_tunggakan" =>  $data->where('menu', 'penagihan')->sum("sisa"),
+                    "bayar_tunggakan" =>  $data->where('menu', 'daftar_tunggakan')->sum("dibayar"),
+                    "kas_diterima" =>  $data->sum("dibayar"),
                 ]
             ]
         ]);
@@ -238,7 +243,7 @@ class TransaksiController extends Controller
             'tenant_id' => 'required', 
             'dibayar' => 'required', 
             'penyewa_id' => 'required',
-            'tanggal' => 'required'
+            'created_at' => 'required'
         ]);
 
         // $penyewa = Tenant::findOrFail($req->tenant_id)->penyewa;
@@ -255,16 +260,17 @@ class TransaksiController extends Controller
                     if($sim - $file->sisa >= 0){
                             $file->dibayar = $file->sisa;
                             $sisa = $sim - $file->sisa;
+                            $file->history()->create([
+                                'transaksi_id' => $file->id,
+                                'user_id' => \Auth::user()->id,
+                                'dibayar' => $file->sisa,
+                                'sisa' => 0,
+                                'tanggal' => $req->created_at,
+                                'menu' => 'daftar_tunggakan'
+                            ]);
                             $file->status = "lunas";
                             $file->sisa= 0;
                             $file->save();
-                            $file->history()->create([
-                                'transaksi_id' => $file->id,
-                                'dibayar' => $file->sisa,
-                                'sisa' => 0,
-                                'tanggal' => $req->tanggal,
-                                'menu' => 'daftar_tunggakan'
-                            ]);
                             $sim = $sisa;
                             $tenant = Tenant::findOrFail($req->tenant_id);
                             $tenant->status_tagih = "lunas";
@@ -278,7 +284,7 @@ class TransaksiController extends Controller
                                 'transaksi_id' => $file->id,
                                 'dibayar' => $sim,
                                 'sisa' => $file->sisa - $sim,
-                                'tanggal' => $req->tanggal,
+                                'tanggal' => $req->created_at,
                                 'menu' => 'daftar_tunggakan'
                             ]);
                             $sim = $sisa;
@@ -378,7 +384,8 @@ class TransaksiController extends Controller
                 ]);
                 $d->history()->create([
                     'transaksi_id' => $d->id,
-                    'tanggal' => $data['tanggal'],
+                    'user_id' => \Auth::user()->id,
+                    'tanggal' => $data['created_at'],
                     'menu' => 'penagihan',
                     'dibayar' => $data['dibayar'],
                     'sisa' => $data['sisa']

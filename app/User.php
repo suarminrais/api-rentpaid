@@ -62,4 +62,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function transaksi() {
         return $this->hasMany('App\Transaksi');
     }
+
+    public function history(){
+        return $this->belongsTo('App\HistoryTransaksi');
+    }
 }
