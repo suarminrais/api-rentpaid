@@ -56,13 +56,22 @@ class TransaksiController extends Controller
                 'owner_id' => $data->id,
             ]);
 
+            $transaksi = Transaksi::create($req->all());
+            $transaksi->history()->create([
+                'transaksi_id' => $transaksi->id,
+                'tanggal' => $req->tanggal,
+                'menu' => 'penagihan',
+                'dibayar' => $req->dibayar,
+                'sisa' => $req->sisa
+            ]);
+
             return response()->json([
                 "diagnostic" => [
                     'code' => 201,
                     "message" => "created transaksi"
                 ],
                 "response" => [
-                    "data" => Transaksi::create($req->all())
+                    "data" => $transaksi
                 ]
             ]);
         } else {
@@ -120,6 +129,7 @@ class TransaksiController extends Controller
         $this->validate($req, [
             'tenant_id' => 'required', 
             'dibayar' => 'required', 
+            'tanggal' => 'required', 
         ]);
 
         $data = Transaksi::where(['tenant_id' => $req->tenant_id, 'status' => 'menunggak', 'lokasi_id' => \Auth::user()->lokasi_id])->get();
@@ -147,6 +157,13 @@ class TransaksiController extends Controller
                         $file->status = "lunas";
                         $file->sisa= 0;
                         $file->save();
+                        $file->history()->create([
+                            'transaksi_id' => $file->id,
+                            'dibayar' => $file->sisa,
+                            'sisa' => 0,
+                            'tanggal' => $req->tanggal,
+                            'menu' => 'daftar_tunggakan'
+                        ]);
                         $sim = $sisa;
                         $tenant = Tenant::findOrFail($req->tenant_id);
                         $tenant->status_tagih = "lunas";
@@ -156,6 +173,13 @@ class TransaksiController extends Controller
                         $sisa = $sim - $file->sisa;
                         $file->sisa= $file->sisa - $sim;
                         $file->save();
+                        $file->history()->create([
+                            'transaksi_id' => $file->id,
+                            'dibayar' => $sim,
+                            'sisa' => $file->sisa - $sim,
+                            'tanggal' => $req->tanggal,
+                            'menu' => 'daftar_tunggakan'
+                        ]);
                         $sim = $sisa;
                     }
                 }
@@ -213,7 +237,8 @@ class TransaksiController extends Controller
         $this->validate($req, [
             'tenant_id' => 'required', 
             'dibayar' => 'required', 
-            'penyewa_id' => 'required'
+            'penyewa_id' => 'required',
+            'tanggal' => 'required'
         ]);
 
         // $penyewa = Tenant::findOrFail($req->tenant_id)->penyewa;
@@ -233,6 +258,13 @@ class TransaksiController extends Controller
                             $file->status = "lunas";
                             $file->sisa= 0;
                             $file->save();
+                            $file->history()->create([
+                                'transaksi_id' => $file->id,
+                                'dibayar' => $file->sisa,
+                                'sisa' => 0,
+                                'tanggal' => $req->tanggal,
+                                'menu' => 'daftar_tunggakan'
+                            ]);
                             $sim = $sisa;
                             $tenant = Tenant::findOrFail($req->tenant_id);
                             $tenant->status_tagih = "lunas";
@@ -242,6 +274,13 @@ class TransaksiController extends Controller
                             $sisa = $sim - $file->sisa;
                             $file->sisa= $file->sisa - $sim;
                             $file->save();
+                            $file->history()->create([
+                                'transaksi_id' => $file->id,
+                                'dibayar' => $sim,
+                                'sisa' => $file->sisa - $sim,
+                                'tanggal' => $req->tanggal,
+                                'menu' => 'daftar_tunggakan'
+                            ]);
                             $sim = $sisa;
                         }
                     }
@@ -333,6 +372,13 @@ class TransaksiController extends Controller
                     'owner_id' => $data['owner_id'], 
                     'lokasi_id' => $data['lokasi_id'],
                     'penyewa_id' => $req->penyewa_id
+                ]);
+                $d->history()->create([
+                    'transaksi_id' => $d->id,
+                    'tanggal' => $data['tanggal'],
+                    'menu' => 'penagihan',
+                    'dibayar' => $data['dibayar'],
+                    'sisa' => $data['sisa']
                 ]);
             }
             return response()->json([

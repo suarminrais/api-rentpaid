@@ -21,4 +21,8 @@ class Transaksi extends Model
     public function collector(){
         return $this->belongsTo('App\User');
     }
+
+    public function history(){
+        return $this->belongsTo('App\HistoryTransaksi');
+    }
 }
