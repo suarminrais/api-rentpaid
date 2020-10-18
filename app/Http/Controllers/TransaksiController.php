@@ -205,15 +205,24 @@ class TransaksiController extends Controller
     public function sesi(Request $req)
     {
         $this->validate($req,[
-            "id_collector" => "required",
             "jam_masuk" => "required",
             "jam_keluar" => "required",
         ]);
 
         $user = \Auth::user();
 
-        $data = HsR::where('user_id', $req->id_collector)
-            ->whereBetween('created_at', [$req->jam_masuk, $req->jam_keluar]);
+        $tagihan = HsR::where('user_id', $user->id)
+            ->whereBetween('tanggal', [$req->jam_masuk, $req->jam_keluar])->where('menu', 'penagihan')->count();
+        $total_tagihan = HsR::where('user_id', $user->id)
+            ->whereBetween('tanggal', [$req->jam_masuk, $req->jam_keluar])->where('menu', 'penagihan')->sum("dibayar");
+        $tunggakan = HsR::where('user_id', $user->id)
+            ->whereBetween('tanggal', [$req->jam_masuk, $req->jam_keluar])->where('menu', '<>','penagihan')->count();
+        $total_tunggakan = HsR::where('user_id', $user->id)
+            ->whereBetween('tanggal', [$req->jam_masuk, $req->jam_keluar])->where('menu', 'penagihan')->sum("sisa");
+        $bayar_tunggkan = HsR::where('user_id', $user->id)
+            ->whereBetween('tanggal', [$req->jam_masuk, $req->jam_keluar])->where('menu', 'daftar_tunggakan')->sum("dibayar");
+        $total_bayar = HsR::where('user_id', $user->id)
+            ->whereBetween('tanggal', [$req->jam_masuk, $req->jam_keluar])->sum("dibayar");
 
         return response()->json([
             "diagnostic" => [
@@ -222,16 +231,16 @@ class TransaksiController extends Controller
             ],
             "response" => [
                 "data" => [
-                    "id_collector" => $req->id_collector,
+                    "id_collector" => $user->id,
                     "nama_collector" => $user->name,
                     "jam_masuk" => $req->jam_masuk,
                     "jam_keluar" => $req->jam_keluar,
-                    "tagihan" => $data->where('menu', 'penagihan')->count(),
-                    "tunggakan" => $data->where('menu', 'daftar_tunggakan')->count(),
-                    "total_tagihan" =>  $data->where('menu', 'penagihan')->sum("dibayar"),
-                    "total_tunggakan" =>  $data->where('menu', 'penagihan')->sum("sisa"),
-                    "bayar_tunggakan" =>  $data->where('menu', 'daftar_tunggakan')->sum("dibayar"),
-                    "kas_diterima" =>  $data->sum("dibayar"),
+                    "tagihan" => $tagihan,
+                    "tunggakan" => $tunggakan,
+                    "total_tagihan" =>  $total_tagihan,
+                    "total_tunggakan" =>  $total_tunggakan,
+                    "bayar_tunggakan" =>  $bayar_tunggkan,
+                    "kas_diterima" =>  $total_bayar,
                 ]
             ]
         ]);
