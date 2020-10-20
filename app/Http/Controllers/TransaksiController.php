@@ -154,7 +154,14 @@ class TransaksiController extends Controller
         foreach ($data as $file) {
             if($sim >= 0){
                 if($sim - $file->sisa >= 0){
-                        $file->dibayar = $file->sisa;
+                        $detail = json_decode($file->detail);
+                        $harga = (($detail->bop ?? 0) 
+                                + ($detail->permeter ?? 0)
+                                + ($detail->barang ?? 0)
+                                + ($detail->listrik  ?? 0)
+                                + ($detail->sampah ?? 0)
+                                + ($detail->air ?? 0));
+                        $file->dibayar = $harga;
                         $sisa = $sim - $file->sisa;
                         $file->history()->create([
                             'transaksi_id' => $file->id,
@@ -267,7 +274,14 @@ class TransaksiController extends Controller
             foreach ($tunggakan as $file) {
                 if($sim >= 0){
                     if($sim - $file->sisa >= 0){
-                            $file->dibayar = $file->sisa;
+                            $detail = json_decode($file->detail);
+                            $harga = (($detail->bop ?? 0) 
+                                    + ($detail->permeter ?? 0)
+                                    + ($detail->barang ?? 0)
+                                    + ($detail->listrik  ?? 0)
+                                    + ($detail->sampah ?? 0)
+                                    + ($detail->air ?? 0));
+                            $file->dibayar = $harga;
                             $sisa = $sim - $file->sisa;
                             $file->history()->create([
                                 'transaksi_id' => $file->id,
