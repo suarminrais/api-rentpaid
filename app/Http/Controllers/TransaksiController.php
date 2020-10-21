@@ -179,19 +179,26 @@ class TransaksiController extends Controller
                         $tenant->status_tagih = "lunas";
                         $tenant->save();
                     } else{
+                        $detail = json_decode($file->detail);
+                        $harga = (($detail->bop ?? 0) 
+                                + ($detail->permeter ?? 0)
+                                + ($detail->barang ?? 0)
+                                + ($detail->listrik  ?? 0)
+                                + ($detail->sampah ?? 0)
+                                + ($detail->air ?? 0));
                         $file->dibayar = $sim;
-                        $sisa = $sim - $file->sisa;
-                        $file->sisa= $file->sisa - $sim;
+                        $sisa = $harga - $sim;
+                        $file->sisa= $sisa;
                         $file->save();
                         $file->history()->create([
                             'transaksi_id' => $file->id,
                             'user_id' => \Auth::user()->id,
                             'dibayar' => $sim,
-                            'sisa' => $file->sisa - $sim,
+                            'sisa' => $sisa,
                             'tanggal' => $req->created_at,
                             'menu' => 'daftar_tunggakan'
                         ]);
-                        $sim = $sisa;
+                        $sim = 0;
                     }
                 }
         }
@@ -299,18 +306,26 @@ class TransaksiController extends Controller
                             $tenant->status_tagih = "lunas";
                             $tenant->save();
                         } else{
+                            $detail = json_decode($file->detail);
+                            $harga = (($detail->bop ?? 0) 
+                                    + ($detail->permeter ?? 0)
+                                    + ($detail->barang ?? 0)
+                                    + ($detail->listrik  ?? 0)
+                                    + ($detail->sampah ?? 0)
+                                    + ($detail->air ?? 0));
                             $file->dibayar = $sim;
-                            $sisa = $sim - $file->sisa;
-                            $file->sisa= $file->sisa - $sim;
+                            $sisa = $harga - $sim;
+                            $file->sisa= $sisa;
                             $file->save();
                             $file->history()->create([
                                 'transaksi_id' => $file->id,
+                                'user_id' => \Auth::user()->id,
                                 'dibayar' => $sim,
-                                'sisa' => $file->sisa - $sim,
+                                'sisa' => $sisa,
                                 'tanggal' => $req->created_at,
                                 'menu' => 'daftar_tunggakan'
                             ]);
-                            $sim = $sisa;
+                            $sim = 0;
                         }
                     }
             }
